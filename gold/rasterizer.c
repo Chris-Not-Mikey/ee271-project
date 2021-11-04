@@ -15,6 +15,14 @@ int min(int a, int b)
 {
   // START CODE HERE
   // END CODE HERE
+  if (a <= b)
+  {
+    return a;
+  }
+  else
+  {
+    return b;
+  }
 }
 
 /*
@@ -25,6 +33,14 @@ int max(int a, int b)
 {
   // START CODE HERE
   // END CODE HERE
+  if (a >= b)
+  {
+    return a;
+  }
+  else
+  {
+    return b;
+  }
 }
 
 /*
@@ -47,15 +63,105 @@ BoundingBox get_bounding_box(Triangle triangle, Screen screen, Config config)
   BoundingBox bbox;
 
   // START CODE HERE
+  int r_shift = config.r_shift;
+  int ss = config.ss;
+  double ss_i = config.ss_i;
+  int ss_w = config.ss_w;
+  int ss_w_lg2 = config.ss_w_lg2;
+
   // initialize bounding box to first vertex
- 
+
+  ColorVertex3D v0 = triangle.v[0];
+  ColorVertex3D v1 = triangle.v[0];
+  ColorVertex3D v2 = triangle.v[0];
+
+  int current_min_x = v0.x;
+  int current_min_y = v0.y;
+  int current_max_x = v0.x;
+  int current_max_y = v0.y;
+
   // iterate over remaining vertices
+  for (int i = 1; i < 3; i++)
+  {
+    current_min_x = min(current_min_x, triangle.v[i].x);
+    current_min_y = min(current_min_y, triangle.v[i].y);
+    current_max_x = max(current_max_x, triangle.v[i].x);
+    current_max_y = max(current_max_y, triangle.v[i].y);
+  }
 
   // round down to subsample grid
 
+  int samples[1024];
+  // int length = 1024/ss; ss_i
+  int index = 0;
+  // Fill in sampled indeces
+  for (int j = -1 * ss_i; j < ss_i; j += ss) //Check this
+  {
+    samples[index] = j;
+  }
+
+  int min_x = current_min_x;
+  int min_y = current_min_y;
+  int max_x = current_max_x;
+  int max_y = current_max_y;
+  // From sampled indices, find find nearest to current vals
+  for (int k = 0; k < 2 * ss_i; k += 1) //check this
+  {
+
+    int index = samples[k];
+    min_x = (min_x > current_min_x - index) ? current_min_x - index : min_x;
+    min_y = (min_y > current_min_y - index) ? current_min_y - index : min_y;
+    max_x = (max_x > current_min_y - index) ? current_min_x - index : max_x;
+    max_y = (min_x > current_min_y - index) ? current_min_x - index : max_y;
+  }
+
+  int index_x = current_min_x - min_x;
+  int index_y = current_min_y - min_y;
+  int index_max_x = current_max_x - max_x;
+  int index_max_y = current_max_y - max_y;
+
   // clip to screen
 
+  if (index_x < 0)
+  {
+    index_x = 0;
+  }
+  if (index_y < 0)
+  {
+    index_y = 0;
+  }
+
+  if (index_max_x >= 1024)
+  {
+    index_x = 1024;
+  }
+  if (index_max_y >= 1024)
+  {
+    index_y = 1024;
+  }
+
   // check if bbox is valid
+  Vertex2D lower_left;
+  lower_left.x = index_x;
+  lower_left.y = index_y;
+
+  Vertex2D upper_right;
+  upper_right.x = index_max_x;
+  upper_right.y = index_max_y;
+
+  bbox.lower_left = lower_left;
+  bbox.upper_right = upper_right;
+
+  bool valid = true;
+  if (index_max_x < 0 && index_max_y < 0)
+  {
+    valid = false;
+  }
+
+  if (index_x >= 1024 && index_y > 1024)
+  {
+    valid = false;
+  }
 
   // END CODE HERE
   return bbox;
@@ -177,3 +283,4 @@ Sample jitter_sample(const Sample sample, const int ss_w_lg2)
 
   return jitter;
 }
+
