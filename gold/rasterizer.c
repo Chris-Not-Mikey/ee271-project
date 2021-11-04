@@ -13,8 +13,14 @@
 */
 int min(int a, int b)
 {
-  // START CODE HERE
-  // END CODE HERE
+  if (a <= b)
+  {
+    return a;
+  }
+  else
+  {
+    return b;
+  }
 }
 
 /*
@@ -23,8 +29,14 @@ int min(int a, int b)
 */
 int max(int a, int b)
 {
-  // START CODE HERE
-  // END CODE HERE
+  if (a >= b)
+  {
+    return a;
+  }
+  else
+  {
+    return b;
+  }
 }
 
 /*
@@ -48,7 +60,7 @@ BoundingBox get_bounding_box(Triangle triangle, Screen screen, Config config)
 
   // START CODE HERE
   // initialize bounding box to first vertex
- 
+
   // iterate over remaining vertices
 
   // round down to subsample grid
