@@ -190,31 +190,31 @@ module bbox
     always_comb begin
 
         // Get largest x-coordinate
-	bbox_sel_R10H[1][0][0] = (tri_R10S[0][0] >= tri_R10S[1][0]) &&  (tri_R10S[0][0] >= tri_R10S[2][0]);
+	bbox_sel_R10H[1][0][0] = (tri_R10S[0][0] > tri_R10S[1][0]) &&  (tri_R10S[0][0] > tri_R10S[2][0]);
 
-	bbox_sel_R10H[1][0][1] = (tri_R10S[1][0] >= tri_R10S[0][0]) &&  (tri_R10S[1][0] >= tri_R10S[2][0]);
+	bbox_sel_R10H[1][0][1] = (tri_R10S[1][0] > tri_R10S[0][0]) &&  (tri_R10S[1][0] > tri_R10S[2][0]);
 
-	bbox_sel_R10H[1][0][2] = (tri_R10S[2][0] >= tri_R10S[0][0]) &&  (tri_R10S[2][0] >= tri_R10S[1][0]);
+	bbox_sel_R10H[1][0][2] = (tri_R10S[2][0] > tri_R10S[0][0]) &&  (tri_R10S[2][0] > tri_R10S[1][0]);
 
 
 
 
 
         // Get smallest x-coordinate
-        bbox_sel_R10H[0][0][0] = (tri_R10S[0][0] <= tri_R10S[1][0]) &&  (tri_R10S[0][0] <= tri_R10S[2][0]);
+        bbox_sel_R10H[0][0][0] = (tri_R10S[0][0] < tri_R10S[1][0]) &&  (tri_R10S[0][0] < tri_R10S[2][0]);
 
-        bbox_sel_R10H[0][0][1] = (tri_R10S[1][0] <= tri_R10S[0][0]) &&  (tri_R10S[1][0] <= tri_R10S[2][0]);
+        bbox_sel_R10H[0][0][1] = (tri_R10S[1][0] < tri_R10S[0][0]) &&  (tri_R10S[1][0] < tri_R10S[2][0]);
 
-        bbox_sel_R10H[0][0][2] = (tri_R10S[2][0] <= tri_R10S[0][0]) &&  (tri_R10S[2][0] <= tri_R10S[1][0]);
+        bbox_sel_R10H[0][0][2] = (tri_R10S[2][0] < tri_R10S[0][0]) &&  (tri_R10S[2][0] < tri_R10S[1][0]);
 
 
 
         // Get largest y-coordinate
-        bbox_sel_R10H[1][1][0] = (tri_R10S[0][1] >= tri_R10S[1][1]) &&  (tri_R10S[0][1] >= tri_R10S[2][1]);
+        bbox_sel_R10H[1][1][0] = (tri_R10S[0][1] > tri_R10S[1][1]) &&  (tri_R10S[0][1] > tri_R10S[2][1]);
 
-        bbox_sel_R10H[1][1][1] = (tri_R10S[1][1] >= tri_R10S[0][1]) &&  (tri_R10S[1][1] >= tri_R10S[2][1]);
+        bbox_sel_R10H[1][1][1] = (tri_R10S[1][1] > tri_R10S[0][1]) &&  (tri_R10S[1][1] > tri_R10S[2][1]);
 
-        bbox_sel_R10H[1][1][2] = (tri_R10S[2][1] >= tri_R10S[0][1]) &&  (tri_R10S[2][1] >= tri_R10S[2][1]);
+        bbox_sel_R10H[1][1][2] = (tri_R10S[2][1] > tri_R10S[0][1]) &&  (tri_R10S[2][1] > tri_R10S[2][1]);
 
 
 
@@ -223,11 +223,11 @@ module bbox
 
         // Get smallet y-coordinate
 
-        bbox_sel_R10H[1][1][0] = (tri_R10S[0][1] <= tri_R10S[1][1]) &&  (tri_R10S[0][1] <= tri_R10S[2][1]);
+	bbox_sel_R10H[1][1][0] = (tri_R10S[0][1] < tri_R10S[1][1]) &&  (tri_R10S[0][1] < tri_R10S[2][1]);
 
-        bbox_sel_R10H[1][1][1] = (tri_R10S[1][1] <= tri_R10S[0][1]) &&  (tri_R10S[1][1] <= tri_R10S[2][1]);
+        bbox_sel_R10H[1][1][1] = (tri_R10S[1][1] < tri_R10S[0][1]) &&  (tri_R10S[1][1] < tri_R10S[2][1]);
 
-        bbox_sel_R10H[1][1][2] = (tri_R10S[2][1] <= tri_R10S[0][1]) &&  (tri_R10S[2][1] <= tri_R10S[2][1]);
+        bbox_sel_R10H[1][1][2] = (tri_R10S[2][1] < tri_R10S[0][1]) &&  (tri_R10S[2][1] < tri_R10S[2][1]);
 
 
 
