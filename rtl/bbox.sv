@@ -183,8 +183,98 @@ module bbox
     // x-coordinate of triangle "vertex a". 
     
     //  DECLARE ANY OTHER SIGNALS YOU NEED
+    //logic [RADIX-1:0] mask;  
 
     // Try declaring an always_comb block to assign values to box_R10S
+
+    always_comb begin
+
+        // Get largest x-coordinate
+	bbox_sel_R10H[1][0][0] = (tri_R10S[0][0] >= tri_R10S[1][0]) &&  (tri_R10S[0][0] >= tri_R10S[2][0]);
+
+	bbox_sel_R10H[1][0][1] = (tri_R10S[1][0] >= tri_R10S[0][0]) &&  (tri_R10S[1][0] >= tri_R10S[2][0]);
+
+	bbox_sel_R10H[1][0][2] = (tri_R10S[2][0] >= tri_R10S[0][0]) &&  (tri_R10S[2][0] >= tri_R10S[1][0]);
+
+
+
+
+
+        // Get smallest x-coordinate
+        bbox_sel_R10H[0][0][0] = (tri_R10S[0][0] <= tri_R10S[1][0]) &&  (tri_R10S[0][0] <= tri_R10S[2][0]);
+
+        bbox_sel_R10H[0][0][1] = (tri_R10S[1][0] <= tri_R10S[0][0]) &&  (tri_R10S[1][0] <= tri_R10S[2][0]);
+
+        bbox_sel_R10H[0][0][2] = (tri_R10S[2][0] <= tri_R10S[0][0]) &&  (tri_R10S[2][0] <= tri_R10S[1][0]);
+
+
+
+        // Get largest y-coordinate
+        bbox_sel_R10H[1][1][0] = (tri_R10S[0][1] >= tri_R10S[1][1]) &&  (tri_R10S[0][1] >= tri_R10S[2][1]);
+
+        bbox_sel_R10H[1][1][1] = (tri_R10S[1][1] >= tri_R10S[0][1]) &&  (tri_R10S[1][1] >= tri_R10S[2][1]);
+
+        bbox_sel_R10H[1][1][2] = (tri_R10S[2][1] >= tri_R10S[0][1]) &&  (tri_R10S[2][1] >= tri_R10S[2][1]);
+
+
+
+
+
+
+        // Get smallet y-coordinate
+
+        bbox_sel_R10H[1][1][0] = (tri_R10S[0][1] <= tri_R10S[1][1]) &&  (tri_R10S[0][1] <= tri_R10S[2][1]);
+
+        bbox_sel_R10H[1][1][1] = (tri_R10S[1][1] <= tri_R10S[0][1]) &&  (tri_R10S[1][1] <= tri_R10S[2][1]);
+
+        bbox_sel_R10H[1][1][2] = (tri_R10S[2][1] <= tri_R10S[0][1]) &&  (tri_R10S[2][1] <= tri_R10S[2][1]);
+
+
+
+
+        // Set actual bounding box values
+
+        // NOTE:
+        // box_R10S[0][0]: LL X
+        // box_R10S[0][1]: LL Y
+        // box_R10S[1][0]: UR X
+        // box_R10S[1][1]: UR Y
+
+        //UR X
+        case(bbox_sel_R10H[1][0])
+            3'b001: box_R10S[1][0] = tri_R10S[0][0];
+            3'b010: box_R10S[1][0] = tri_R10S[1][0]; 
+            3'b100: box_R10S[1][0] = tri_R10S[2][0]; 
+            default: box_R10S[1][0] = tri_R10S[0][0];
+        endcase 
+ 
+        //LL X
+        case(bbox_sel_R10H[0][0])
+            3'b001: box_R10S[0][0] = tri_R10S[0][0];
+            3'b010: box_R10S[0][0] = tri_R10S[1][0]; 
+            3'b100: box_R10S[0][0] = tri_R10S[2][0]; 
+            default: box_R10S[0][0] = tri_R10S[0][0];
+        endcase 
+
+        //UR Y
+        case(bbox_sel_R10H[1][1])
+            3'b001: box_R10S[1][1] = tri_R10S[0][1];
+            3'b010: box_R10S[1][1] = tri_R10S[1][1]; 
+            3'b100: box_R10S[1][1] = tri_R10S[2][1]; 
+            default: box_R10S[1][1] = tri_R10S[0][1];
+        endcase 
+
+         //UR X
+        case(bbox_sel_R10H[0][1])
+            3'b001: box_R10S[0][1] = tri_R10S[0][1];
+            3'b010: box_R10S[0][1] = tri_R10S[1][1]; 
+            3'b100: box_R10S[0][1] = tri_R10S[2][1]; 
+            default: box_R10S[0][1] = tri_R10S[0][1];
+        endcase 
+
+    end
+
+
     // END CODE HERE
 
     // Assertions to check if box_R10S is assigned properly
@@ -201,6 +291,13 @@ module bbox
     assert property(@(posedge clk) $onehot(bbox_sel_R10H[1][1]));
 
     //Assertions to check UR is never less than LL
+    //  assert property(@(posedge clk)  (!(box_R10S[1][0] <  box_R10S[0][0]));
+    //  assert property(@(posedge clk)  (!(box_R10S[1][1] <  box_R10S[1][0]));
+
+    assert property( rb_lt( rst, box_R13S[0][0], box_R13S[1][0], validTri_R13H ));
+    assert property( rb_lt( rst, box_R13S[0][1], box_R13S[1][1], validTri_R13H ));
+
+
     // END CODE HERE
 
 
@@ -237,6 +334,54 @@ for(genvar i = 0; i < 2; i = i + 1) begin
 
             //////// ASSIGN FRACTIONAL PORTION
             // START CODE HERE
+
+            //              * For signal subSample_RnnnnU (logic [3:0])
+            //  * 1000 for  1x MSAA eq to 1 sample per pixel
+            //  * 0100 for  4x MSAA eq to 4 samples per pixel,
+            //  *              a sample is half a pixel on a side
+            //  * 0010 for 16x MSAA eq to 16 sample per pixel,
+            //  *              a sample is a quarter pixel on a side.
+            //  * 0001 for 64x MSAA eq to 64 samples per pixel,
+            //  *              a sample is an eighth of a pixel on a side.
+
+        
+
+            //TODO: Need to check how to actually make this mask
+            //I followed the logic of rasterizer.c
+            case (subSample_RnnnnU)
+                4'b1000:begin
+                    //logic [RADIX-1:0] mask = 10'b0000000000; 
+                    rounded_box_R10S[i][j][RADIX-1:0]
+                    = (box_R10S[i][j][RADIX-1:0] & 10'b0000000000);
+
+                end
+                4'b0100:begin
+                   // logic [RADIX-1:0] mask = 10'b0000000001;
+                    rounded_box_R10S[i][j][RADIX-1:0]
+                    = (box_R10S[i][j][RADIX-1:0] & 10'b1000000000);
+                    
+                end
+                4'b0010: begin
+                   // mask = 10'b0000000011;
+		   // logic [RADIX-1:0] mask = 10'b0000000011;
+                    rounded_box_R10S[i][j][RADIX-1:0]
+                     = (box_R10S[i][j][RADIX-1:0] & 10'b1100000000);  
+                end
+                4'b0001:begin
+                   // mask = 10'b0000000111;
+		   // logic [RADIX-1:0] mask = 10'b0000000111;
+                    rounded_box_R10S[i][j][RADIX-1:0]
+                    = (box_R10S[i][j][RADIX-1:0] & 10'b1110000000);  
+                end
+                default: begin
+                   // mask = 10'b0000000000;
+	           //logic [RADIX-1:0] mask = 10'b0000000000;
+                    rounded_box_R10S[i][j][RADIX-1:0]
+                    = (box_R10S[i][j][RADIX-1:0] & 10'b0000000000);  
+                end
+
+            endcase
+
             // END CODE HERE
 
         end // always_comb
@@ -266,7 +411,69 @@ endgenerate
 
         //////// ASSIGN "out_box_R10S" and "outvalid_R10H"
         // START CODE HERE
+
+        // Clamping:
+
+          // NOTE:
+        // box_R10S[0][0]: LL X
+        // box_R10S[0][1]: LL Y
+        // box_R10S[1][0]: UR X
+        // box_R10S[1][1]: UR Y
+
+
+        //TODO: Check if shift has been applied to screen (it has)
+
+        // LL X
+        if (rounded_box_R10S[0][0] <  0) begin
+            out_box_R10S[0][0] = 0;
+        end
+        else begin
+            out_box_R10S[0][0] = rounded_box_R10S[0][0] ;
+        end
+
+        // LL Y
+        if (rounded_box_R10S[0][1] <  0) begin
+            out_box_R10S[0][1] = 0;
+        end
+        else begin
+            out_box_R10S[0][1] = rounded_box_R10S[0][1] ;
+        end
+
+        // UR X
+        if (rounded_box_R10S[1][0] >=  screen_RnnnnS[0]) begin
+            out_box_R10S[1][0] = screen_RnnnnS[0];
+        end
+        else begin
+            out_box_R10S[1][0] = rounded_box_R10S[1][0] ;
+        end
+
+        // UR Y
+        if (rounded_box_R10S[1][1] >=  screen_RnnnnS[1]) begin
+            out_box_R10S[1][1] = screen_RnnnnS[1];
+        end
+        else begin
+            out_box_R10S[1][1] = rounded_box_R10S[1][1] ;
+        end
+
+        //END Clamping
+
+        //Begin Valid Check
+
+        if ((rounded_box_R10S[1][0] <  0) || (rounded_box_R10S[1][1] <  0) || (rounded_box_R10S[0][0] >=  screen_RnnnnS[0]) || (rounded_box_R10S[0][1] >=  screen_RnnnnS[1])) begin
+            outvalid_R10H = 1'b0;
+        end
+        else begin
+            outvalid_R10H = 1'b1;
+        end
+
+
+
+        //END Valid Check
+  
+
         // END CODE HERE
+
+
 
     end
 
@@ -418,6 +625,10 @@ endgenerate
     //Error Checking Assertions
 
 endmodule
+
+
+
+
 
 
 
